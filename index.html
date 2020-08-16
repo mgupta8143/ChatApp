@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font: 13px Helvetica, Arial; }
+      #submitform { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
+      #submitform #m { border: 0; padding: 10px; width: 90%; margin-right: 0.5%; }
+      #submitform #mbutton { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+      #messages { list-style-type: none; margin: 0; padding: 0; }
+      #messages li { padding: 5px 10px; }
+    </style>
+  </head>
+  <body>
+    <form id = "userform" action="">
+        <input id="u" autocomplete="off" /><button>Send</button>
+    </form>
+    <ul id="messages"></ul>
+    <form id = "submitform" action="">
+      <input id="m" autocomplete="off" /><button id ="mbutton">Send</button>
+    </form>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script>
+        $(function () {
+            var socket = io();
+            $('#submitform').submit(function(e) {
+                e.preventDefault(); // prevents page reloading
+                socket.emit('chat message', $('#m').val());
+                $('#m').val('');
+                return false;
+            });
+            $('#userform').submit(function(e) {
+                e.preventDefault(); 
+                socket.emit('send username', $('#u').val());
+                $('#u').val('');
+                return false;
+            });
+            socket.on('chat message', function(msg){
+                $('#messages').append($('<li>').text(msg));
+            });
+            socket.on('disconnect', (msg) => {
+                $('#messages').append($('<li>').text(msg));
+            });
+            socket.on('send username', (msg) => {
+                $('#messages').append($('<li>').text(msg));
+            });
+        });
+    </script>
+  </body>
+</html>
